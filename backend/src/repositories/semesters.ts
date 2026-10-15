@@ -5,6 +5,7 @@ export interface Semester {
 
 export interface SemesterRepository {
   list(): Promise<Semester[]>;
+  findById(id: string): Promise<Semester | null>;
 }
 
 // Temporary in-memory data used until PostgreSQL and Prisma are wired up.
@@ -18,5 +19,8 @@ const seedSemesters: Semester[] = [
 export const semesterRepository: SemesterRepository = {
   async list(): Promise<Semester[]> {
     return seedSemesters;
+  },
+  async findById(id: string): Promise<Semester | null> {
+    return seedSemesters.find((semester) => semester.id === id) ?? null;
   },
 };
