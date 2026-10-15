@@ -1,16 +1,13 @@
 
 import Fastify from 'fastify';
+import { healthRoutes } from './routes/health.js';
 
 const app = Fastify({
   logger: true,
 });
 
-app.get('/health', async () => {
-  return {
-    status: 'ok',
-    service: 'p2p-academic-resource-distribution-api',
-  };
-});
+// Register the health-check endpoint.
+void app.register(healthRoutes);
 
 const start = async (): Promise<void> => {
   try {
