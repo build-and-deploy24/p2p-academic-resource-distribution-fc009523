@@ -1,6 +1,7 @@
 
 import Fastify, { type FastifyError } from 'fastify';
 import { healthRoutes } from './routes/health.js';
+import { semesterRoutes } from './routes/semesters.js';
 import { createApiError } from './utils/api-error.js';
 
 const app = Fastify({
@@ -9,6 +10,9 @@ const app = Fastify({
 
 // Register the health-check endpoint.
 void app.register(healthRoutes);
+
+// Register the academic catalog routes.
+void app.register(semesterRoutes);
 
 // Return the standard error shape for unknown routes.
 app.setNotFoundHandler((request, reply) => {
