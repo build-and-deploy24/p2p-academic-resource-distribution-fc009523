@@ -121,4 +121,4 @@ The team must agree on the following before the related endpoints are implemente
 - [ ] Example responses are included.
 - [ ] Implemented and proposed endpoints are clearly distinguished.
 - [ ] Open decisions are recorded.
-- [ ] The document is committed on a feature branch and submitted through a pull request to `dev`.
+- [ ] The document is committed on a feature branch and submitted through a pull request to `dev`..
