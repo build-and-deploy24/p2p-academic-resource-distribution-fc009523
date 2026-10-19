@@ -22,7 +22,7 @@ export async function semesterRoutes(app: FastifyInstance): Promise<void> {
           .send(
             createApiError(
               'SEMESTER_NOT_FOUND',
-              `Semester ${semesterId} was not found.`,
+              'The requested semester was not found.',
             ),
           );
       }
