@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 export interface FileMetadata {
   id: string;
   title: string;
@@ -8,9 +10,19 @@ export interface FileMetadata {
   storageKey: string;
 }
 
+/** Fields the server owns when a new resource is registered. */
+export interface NewFileMetadata {
+  title: string;
+  fileType: string;
+  sizeBytes: number;
+  unitId: string;
+  storageKey: string;
+}
+
 export interface FileRepository {
   listByUnitId(unitId: string): Promise<FileMetadata[]>;
   findById(id: string): Promise<FileMetadata | null>;
+  create(input: NewFileMetadata): Promise<FileMetadata>;
 }
 
 // Temporary in-memory data used until PostgreSQL and Prisma are wired up.
@@ -58,5 +70,10 @@ export const fileRepository: FileRepository = {
   },
   async findById(id: string): Promise<FileMetadata | null> {
     return seedFiles.find((file) => file.id === id) ?? null;
+  },
+  async create(input: NewFileMetadata): Promise<FileMetadata> {
+    const file: FileMetadata = { id: randomUUID(), ...input };
+    seedFiles.push(file);
+    return file;
   },
 };

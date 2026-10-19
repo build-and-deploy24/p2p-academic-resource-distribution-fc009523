@@ -3,6 +3,7 @@ import { healthRoutes } from './routes/health.js';
 import { fileRoutes } from './routes/files.js';
 import { semesterRoutes } from './routes/semesters.js';
 import { unitRoutes } from './routes/units.js';
+import { uploadRoutes } from './routes/uploads.js';
 import { createApiError } from './utils/api-error.js';
 
 export interface BuildAppOptions {
@@ -27,6 +28,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   void app.register(semesterRoutes);
   void app.register(unitRoutes);
   void app.register(fileRoutes);
+  void app.register(uploadRoutes);
 
   // Return the standard error shape for unknown routes.
   app.setNotFoundHandler((request, reply) => {
