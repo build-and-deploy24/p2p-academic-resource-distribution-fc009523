@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { describe, test } from 'node:test';
 import {
+  buildStorageKey,
   contentTypeForStorageKey,
   readStoredFile,
 } from '../src/utils/file-storage.js';
@@ -60,5 +62,48 @@ describe('readStoredFile', () => {
       () => readStoredFile('not-in-storage.pdf'),
       (error: NodeJS.ErrnoException) => error.code === 'ENOENT',
     );
+  });
+});
+
+describe('buildStorageKey', () => {
+  test('builds a slugged key with a random suffix and the original extension', () => {
+    const key = buildStorageKey('Lecture 9 - Testing.pdf');
+
+    assert.match(key, /^lecture-9-testing-[0-9a-f]{12}\.pdf$/);
+  });
+
+  test('never reuses a key for the same file name', () => {
+    assert.notEqual(
+      buildStorageKey('notes.pdf'),
+      buildStorageKey('notes.pdf'),
+    );
+  });
+
+  test('strips directory components from a hostile file name', () => {
+    for (const name of [
+      '../../etc/passwd.pdf',
+      'C:\\Windows\\win.ini.pdf',
+      '/etc/shadow.pdf',
+    ]) {
+      const key = buildStorageKey(name);
+      assert.doesNotMatch(key, /[\\/]/);
+      assert.doesNotMatch(key, /\.\./);
+      assert.match(key, /\.pdf$/);
+      assert.equal(path.basename(key), key);
+    }
+  });
+
+  test('rejects extensions outside the allowlist', () => {
+    for (const name of ['installer.exe', 'archive.zip', 'noextension']) {
+      assert.throws(() => buildStorageKey(name), /Unsupported file extension/);
+    }
+  });
+
+  test('limits the slug length but keeps the extension', () => {
+    const key = buildStorageKey(`${'a'.repeat(120)}.pdf`);
+    const suffix = key.match(/-[0-9a-f]{12}\.pdf$/)?.[0];
+
+    assert.ok(suffix, `unexpected storage key shape: ${key}`);
+    assert.equal(key.length - suffix.length, 40);
   });
 });
