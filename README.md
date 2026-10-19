@@ -39,7 +39,7 @@ The planned technology stack is:
 |---|---|
 | Frontend | React, TypeScript, Vite, Tailwind CSS |
 | Backend API | Node.js, TypeScript, Fastify |
-| Database | PostgreSQL |
+| Database | MySQL |
 | Database access | Prisma ORM |
 | P2P distribution | WebTorrent, WebRTC |
 | Tracker and connectivity | bittorrent-tracker, Coturn |
@@ -55,7 +55,7 @@ The intended system consists of the following components:
 
 1. **Frontend:** Provides the student interface for browsing academic resources, selecting files, and monitoring downloads.
 2. **Backend API:** Handles resource requests, validates operations, and coordinates access to the central resource catalog and file storage.
-3. **PostgreSQL database:** Stores structured metadata, including semesters, units, files, users, and download sessions.
+3. **MySQL database:** Stores structured metadata, including semesters, units, files, users, and download sessions.
 4. **Central file storage:** Holds the authoritative file copies and supports direct downloads and fallback delivery.
 5. **P2P distribution layer:** Enables compatible peers to exchange file data using WebTorrent and WebRTC.
 6. **Monitoring and testing:** Collects performance information and helps evaluate the system's effectiveness.
@@ -92,7 +92,7 @@ For backend development, install:
 - Git
 - A code editor such as Visual Studio Code
 
-PostgreSQL and the other services will be required as their respective modules are integrated.
+Mysql and the other services will be required as their respective modules are integrated.
 
 ## 8. Getting Started
 
@@ -217,7 +217,7 @@ Completed or verified so far:
 
 Planned or still in progress:
 
-- PostgreSQL integration and Prisma schema.
+- MySQL integration and Prisma schema.
 - Semester, unit, and file catalog endpoints.
 - File storage and direct download implementation.
 - React frontend integration.
