@@ -6,6 +6,7 @@ export interface Unit {
 
 export interface UnitRepository {
   listBySemesterId(semesterId: string): Promise<Unit[]>;
+  findById(id: string): Promise<Unit | null>;
 }
 
 // Temporary in-memory data used until PostgreSQL and Prisma are wired up.
@@ -21,5 +22,8 @@ const seedUnits: Unit[] = [
 export const unitRepository: UnitRepository = {
   async listBySemesterId(semesterId: string): Promise<Unit[]> {
     return seedUnits.filter((unit) => unit.semesterId === semesterId);
+  },
+  async findById(id: string): Promise<Unit | null> {
+    return seedUnits.find((unit) => unit.id === id) ?? null;
   },
 };
