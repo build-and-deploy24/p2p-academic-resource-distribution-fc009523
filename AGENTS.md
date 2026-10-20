@@ -48,7 +48,7 @@ The agreed target stack is:
 - Fastify
 
 ### Database and ORM
-- MySql
+- PostgreSQL
 - Prisma ORM
 
 ### Peer-to-peer distribution
@@ -101,7 +101,7 @@ Do not put the entire application into one large server file.
 
 ### 4.3 Database
 
-Mysql stores structured metadata rather than the full binary contents of academic files.
+PostgreSQL stores structured metadata rather than the full binary contents of academic files.
 
 The initial domain models are expected to include:
 - `Semester`
