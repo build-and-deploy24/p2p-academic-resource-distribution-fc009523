@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+coverage/
+
+# Stored file bytes. Uploaded resources must never be committed; only the
+# placeholder demo files used for local testing are tracked, and those were
+# added explicitly with `git add -f`.
+backend/storage/*
