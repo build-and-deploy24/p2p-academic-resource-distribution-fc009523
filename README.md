@@ -70,12 +70,17 @@ The repository is organized by project component. As development progresses, add
 p2p-academic-resource-distribution-fc009523/
 ├── backend/
 │   ├── src/
-│   │   ├── routes/
-│   │   └── server.ts
+│   │   ├── app.ts            # application factory (routes + error handlers)
+│   │   ├── server.ts         # entry point
+│   │   ├── routes/           # HTTP route definitions
+│   │   ├── repositories/     # data-access boundary (in-memory for now)
+│   │   └── utils/            # response helpers and file storage
+│   ├── storage/              # server-side file bytes (placeholder files)
+│   ├── test/                 # automated endpoint and helper tests
 │   ├── package.json
 │   └── tsconfig.json
 ├── docs/
-│   └── api-contract.md
+│   └── api-contract.md       # currently on the docs/api-contract branch
 ├── frontend/
 │   └── (planned)
 ├── .gitignore
@@ -149,9 +154,22 @@ The proposed API contract is maintained in:
 
 `docs/api-contract.md`
 
+> Note: the contract file currently lives on the `docs/api-contract` branch and has not yet been merged into `dev`.
+
 The contract describes the intended endpoints for checking service health, retrieving semesters and units, listing files, and downloading resources.
 
-At the current stage, the health-check endpoint is implemented. Other endpoints described in the contract must be treated as planned until their implementation and tests are complete.
+**Implemented and covered by automated tests (on `feature/backend-routes`):**
+
+| Endpoint | Purpose | Notes |
+|---|---|---|
+| `GET /health` | Service health check | |
+| `GET /api/semesters` | List semesters | In-memory data source |
+| `GET /api/semesters/:semesterId/units` | List a semester's units | `404` for unknown semesters |
+| `GET /api/units/:unitId/files` | List a unit's file metadata | Metadata only, no file bytes |
+| `GET /api/files/:fileId/download` | Download a file from the server | Placeholder storage, `404`/`500` error handling |
+| `POST /api/units/:unitId/files` | Upload a file (administrative) | Token-gated; not yet part of the published contract |
+
+**Planned, not implemented:** database persistence (currently in-memory), P2P transfer and server-fallback switching, batch downloads, and performance measurement. These must be treated as planned until implemented and tested.
 
 ## 10. Development Workflow
 
@@ -205,24 +223,25 @@ Performance results should be recorded and compared against an appropriate serve
 
 ## 13. Project Status
 
-**Current development stage:** Backend foundation and API contract.
+**Current development stage:** Backend API route layer (database-independent), pending review and merge to `dev`.
 
 Completed or verified so far:
 
-- Backend project scaffold.
-- Fastify development server.
+- Backend project scaffold and Fastify application factory.
 - Health-check endpoint.
-- TypeScript type-check command.
-- Initial API contract documentation.
+- Semester, unit, and file metadata listing endpoints.
+- Server-side file download endpoint with safe storage access and download headers.
+- Administrative file upload endpoint (token-gated, extension allowlist, size limit).
+- Shared success/error response helpers and global error handling.
+- Automated tests for all of the above (`npm test`) and a clean TypeScript type-check (`npm run typecheck`).
 
 Planned or still in progress:
 
 - PostgreSQL integration and Prisma schema.
-- Semester, unit, and file catalog endpoints.
-- File storage and direct download implementation.
 - React frontend integration.
 - WebTorrent/WebRTC peer-assisted transfers.
 - Server fallback, batch downloads, and performance evaluation.
+- Merging `docs/api-contract.md` and the backend route branch through pull requests.
 
 This section should be updated as features are implemented, tested, and merged.
 
