@@ -111,3 +111,59 @@
 tr.low-peers td {
    background: #fff4e5;
    }
+   * {
+       box-sizing: border-box; 
+      }
+
+header {
+    flex-wrap: wrap; 
+    gap: 8px; 
+   }
+header h1 {
+    margin: 0;
+     font-size: 24px;
+    }
+
+li.file-row span { 
+   min-width: 0;
+    overflow-wrap: anywhere;
+    }
+
+.table-wrap {
+    overflow-x: auto;
+    }
+
+/* Phones and small screens */
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 20px;
+    }
+  main {
+    padding: 16px; 
+   }
+
+  li.file-row {
+    flex-direction: column;
+     align-items: flex-start;
+    }
+  .download-btn { 
+   width: 100%;
+    padding: 12px;
+    }
+
+  #filters select {
+    width: 100%;
+     padding: 12px;
+    }
+  #back-button { 
+   padding: 10px 14px; 
+}
+
+  .card {
+    flex: 1 1 100%;
+     min-width: 0;
+    }
+  #health-table {
+    min-width: 480px; 
+   }
+}
