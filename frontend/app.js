@@ -8,6 +8,7 @@ backBtn.addEventListener("click", function () {
 });
 
 function render(title, items, onBack) {
+  document.getElementById("filters").innerHTML = "";
   titleEl.textContent = title;
   listEl.innerHTML = "";
   if (items.length === 0) {
@@ -55,13 +56,46 @@ function showUnits(semester) {
 
 function showFiles(semester, unit) {
   const files = mockFiles[unit.id] || [];
-  const items = files.map(function (file) {
-    const label = file.title + " (" + file.fileType.toUpperCase() + ", " + formatSize(file.sizeBytes) + ")";
-    return makeItem(label);
+
+  const years = [];
+  files.forEach(function (file) {
+    if (file.year && years.indexOf(file.year) === -1) {
+      years.push(file.year);
+    }
   });
-  render(unit.name + " – Files", items, function () {
+  years.sort(function (a, b) { return b - a; });
+
+  function buildItems(selectedYear) {
+    return files
+      .filter(function (file) {
+        return selectedYear === "all" || String(file.year) === selectedYear;
+      })
+      .map(function (file) {
+        const label = file.title + " (" + file.fileType.toUpperCase() + ", " + formatSize(file.sizeBytes) + ")";
+        return makeItem(label);
+      });
+  }
+
+  render(unit.name + " – Files", buildItems("all"), function () {
     showUnits(semester);
   });
+
+  const select = document.createElement("select");
+  select.innerHTML = '<option value="all">All years</option>' +
+    years.map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join("");
+
+  select.addEventListener("change", function () {
+    listEl.innerHTML = "";
+    const items = buildItems(select.value);
+    if (items.length === 0) {
+      listEl.appendChild(makeItem("Nothing here yet."));
+    }
+    items.forEach(function (item) {
+      listEl.appendChild(item);
+    });
+  });
+
+  document.getElementById("filters").appendChild(select);
 }
 
 showSemesters();

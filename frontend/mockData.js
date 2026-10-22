@@ -36,30 +36,33 @@ const mockUnits = {
   "y4s2": []
 };
 
-const mockFiles = {
-  "ZOOL 1": [
-    { id: "file-1", title: "Past Paper 2024", fileType: "pdf", sizeBytes: 2048000 },
-    { id: "file-2", title: "Lecture 1 Slides", fileType: "pptx", sizeBytes: 5120000 }
-  ],
-  "PHIL 104": [
-    { id: "file-3", title: "Past Paper 2023", fileType: "pdf", sizeBytes: 1536000 }
-  ],
-  "MATH 112": [
-    { id: "file-4", title: "Lecture Notes", fileType: "pdf", sizeBytes: 1024000 }
-  ],
-  "COMP 107": [
-    { id: "file-5", title: "Past Paper 2024", fileType: "pdf", sizeBytes: 1843200 },
-    { id: "file-6", title: "Revision Questions", fileType: "pdf", sizeBytes: 921600 }
-  ],
-  "SOEN 105": [
-    { id: "file-7", title: "Past Paper 2023", fileType: "pdf", sizeBytes: 2252800 },
-    { id: "file-8", title: "Process Scheduling Slides", fileType: "pptx", sizeBytes: 4300800 }
-  ],
-  "PHYS 213": [
-    { id: "file-9", title: "Past Paper 2024", fileType: "pdf", sizeBytes: 1740800 }
-  ],
-  "MATH 111": [
-    { id: "file-10", title: "Past Paper 2022", fileType: "pdf", sizeBytes: 1331200 },
-    { id: "file-11", title: "Differentiation Slides", fileType: "pptx", sizeBytes: 3891200 }
-  ]
-};
+const FIRST_YEAR = 2000;
+const LATEST_YEAR = 2026; // change this to the year of the most recent exam
+
+const mockFiles = {};
+
+mockUnits["y1s1"].forEach(function (unit) {
+  const files = [];
+
+  for (let year = LATEST_YEAR; year >= FIRST_YEAR; year--) {
+    files.push({
+      id: unit.id + "-pp-" + year,
+      title: unit.name + " Past Paper " + year,
+      fileType: "pdf",
+      sizeBytes: 1000000 + (year % 7) * 150000,
+      category: "past-paper",
+      year: year
+    });
+  }
+
+  files.push({
+    id: unit.id + "-slides-1",
+    title: unit.name + " Lecture Slides",
+    fileType: "pptx",
+    sizeBytes: 4200000,
+    category: "slides",
+    year: null
+  });
+
+  mockFiles[unit.id] = files;
+});

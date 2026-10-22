@@ -33,3 +33,9 @@
         color: white; 
         cursor: pointer;
      }
+     #filters select {
+       padding: 8px 12px; 
+       margin-bottom: 12px;
+        border-radius: 6px;
+         border: 1px solid #c5d3dc;
+       }
