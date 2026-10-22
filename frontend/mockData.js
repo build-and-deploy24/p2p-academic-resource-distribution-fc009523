@@ -66,3 +66,19 @@ mockUnits["y1s1"].forEach(function (unit) {
 
   mockFiles[unit.id] = files;
 });
+
+const mockStats = {
+  success: true,
+  data: {
+    activeDownloads: 12,
+    averagePeerCount: 3.4,
+    fallbackRate: 0.18
+  }
+};
+
+const mockFileHealth = [
+  { title: "Calculus Past Paper 2024", peerCount: 9, p2pDownloads: 140, fallbackDownloads: 12 },
+  { title: "Operating Systems Past Paper 2023", peerCount: 6, p2pDownloads: 95, fallbackDownloads: 18 },
+  { title: "Mathematics Past Paper 2022", peerCount: 2, p2pDownloads: 20, fallbackDownloads: 35 },
+  { title: "Philosophy Lecture Slides", peerCount: 0, p2pDownloads: 0, fallbackDownloads: 22 }
+];
