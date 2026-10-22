@@ -8,6 +8,7 @@ backBtn.addEventListener("click", function () {
 });
 
 function render(title, items, onBack) {
+ document.getElementById("status-message").textContent = ""; 
   document.getElementById("filters").innerHTML = "";
   titleEl.textContent = title;
   listEl.innerHTML = "";
@@ -54,6 +55,33 @@ function showUnits(semester) {
   render(semester.name + " – Units", items, showSemesters);
 }
 
+function downloadFile(file) {
+  const url = "/api/files/" + file.id + "/download";
+  // Mock for now: the backend isn't built yet.
+  // Later this will try P2P first, then fall back to this URL.
+  document.getElementById("status-message").textContent =
+    "Download requested: " + file.title + " (will call " + url + ")";
+}
+
+function makeFileItem(file) {
+  const li = document.createElement("li");
+  li.classList.add("file-row");
+
+  const label = document.createElement("span");
+  label.textContent = file.title + " (" + file.fileType.toUpperCase() + ", " + formatSize(file.sizeBytes) + ")";
+
+  const button = document.createElement("button");
+  button.textContent = "Download";
+  button.className = "download-btn";
+  button.addEventListener("click", function () {
+    downloadFile(file);
+  });
+
+  li.appendChild(label);
+  li.appendChild(button);
+  return li;
+}
+
 function showFiles(semester, unit) {
   const files = mockFiles[unit.id] || [];
 
@@ -70,9 +98,8 @@ function showFiles(semester, unit) {
       .filter(function (file) {
         return selectedYear === "all" || String(file.year) === selectedYear;
       })
-      .map(function (file) {
-        const label = file.title + " (" + file.fileType.toUpperCase() + ", " + formatSize(file.sizeBytes) + ")";
-        return makeItem(label);
+            .map(function (file) {
+        return makeFileItem(file);
       });
   }
 

@@ -39,3 +39,25 @@
         border-radius: 6px;
          border: 1px solid #c5d3dc;
        }
+       li.file-row { 
+         display: flex; 
+         justify-content: space-between;
+          align-items: center;
+           gap: 12px; 
+         }
+.download-btn { 
+   padding: 8px 14px;
+    border: none;
+     border-radius: 6px;
+      background: #1c7293; 
+      color: white;
+       cursor: pointer; 
+      }
+.download-btn:hover {
+    background: #065a82;
+    }
+#status-message {
+    margin-top: 16px;
+     color: #065a82;
+      font-weight: bold;
+    }
