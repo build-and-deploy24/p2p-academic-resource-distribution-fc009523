@@ -24,6 +24,18 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({
+      success: false,
+      error: { code: "INVALID_INPUT", message: "The file is too large (maximum 50 MB)." }
+    })
+     if (err.code === "LIMIT_UNEXPECTED_FILE") {
+    return res.status(400).json({
+      success: false,
+      error: { code: "INVALID_INPUT", message: 'The file field must be named "file".' }
+    });
+  };
+  }
   console.error(err);
   res.status(500).json({
     success: false,
