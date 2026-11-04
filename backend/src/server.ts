@@ -1,12 +1,22 @@
-import { buildApp } from './app.js';
 
-const app = buildApp();
+import Fastify from 'fastify';
+
+const app = Fastify({
+  logger: true,
+});
+
+app.get('/health', async () => {
+  return {
+    status: 'ok',
+    service: 'p2p-academic-resource-distribution-api',
+  };
+});
 
 const start = async (): Promise<void> => {
   try {
     await app.listen({
-      port: Number(process.env.PORT ?? 3000),
-      host: process.env.HOST ?? '127.0.0.1',
+      port: 3000,
+      host: '127.0.0.1',
     });
   } catch (error) {
     app.log.error(error);
