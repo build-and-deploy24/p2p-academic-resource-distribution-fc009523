@@ -5,6 +5,8 @@ import { semesterRoutes } from './routes/semesters.js';
 import { unitRoutes } from './routes/units.js';
 import { uploadRoutes } from './routes/uploads.js';
 import { createApiError } from './utils/api-error.js';
+import websocket from '@fastify/websocket';
+import { signalingRoutes } from './routes/signaling.js';
 
 export interface BuildAppOptions {
   /** Disable request logging in tests; enabled by default. */
@@ -20,6 +22,12 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   const app = Fastify({
     logger: options.logger ?? true,
   });
+
+  // Register WebSocket support for peer-to-peer signaling.
+  void app.register(websocket);
+
+  // Register the WebRTC signaling route.
+  void app.register(signalingRoutes);
 
   // Register the health-check endpoint.
   void app.register(healthRoutes);
