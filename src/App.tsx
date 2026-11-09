@@ -1,4 +1,6 @@
 
+import './App.css'
+import WebRTCTest from './webrtc/WebRTCTest'
 import { useEffect, useState, type FormEvent } from 'react'
 import {
   getSemesters,
@@ -428,10 +430,12 @@ function App() {
                     type="button"
                     className="reset-button"
                     onClick={() => {
-                      setYear('All Years')
-                      setSemester('All Semesters')
-                      setUnit('All Units')
+                      setSemesterId('')
+                      setUnitId('')
+                      setUnitList([])
+                      setFiles([])
                       setSearch('')
+                      setError('')
                     }}
                   >
                     Clear Filters
@@ -443,6 +447,7 @@ function App() {
         </main>
       )}
 
+            <WebRTCTest />
       <footer className="footer">
         <p>CampusShare · Learn together, share resources.</p>
         <p>Peer-assisted academic resource sharing for students.</p>
