@@ -110,6 +110,15 @@ INSERT INTO units (semester_id, code, name) VALUES
 (3, 'SOEN301', 'Advanced Software Engineering'),
 (3, 'CS301',   'Computer Security');
 
+-- Placeholder files: each storage_key matches a PDF in backend/storage.
+INSERT INTO files
+(unit_id, uploaded_by, filename, storage_key, version, file_size, file_type)
+VALUES
+(1, 5, 'Lecture 1 - Introduction',        'lecture-1-introduction.pdf',         1, 360, 'PDF'),
+(1, 5, 'Lecture 2 - Variables and Types', 'lecture-2-variables-and-types.pdf',  1, 367, 'PDF'),
+(2, 5, 'Discrete Mathematics Notes',      'discrete-mathematics-notes.pdf',     1, 362, 'PDF'),
+(4, 5, 'Data Structures Lecture Slides',  'data-structures-lecture-slides.pdf', 1, 366, 'PDF');
+
 -- Quick check
 SELECT 'users' AS table_name, COUNT(*) AS total_records FROM users
 UNION ALL SELECT 'semesters', COUNT(*) FROM semesters
