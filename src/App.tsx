@@ -1,79 +1,22 @@
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import {
+  getSemesters,
+  getUnits,
+  getFiles,
+  downloadUrl,
+  formatSize,
+  type Semester,
+  type Unit,
+  type ApiFile,
+} from './api'
 import './App.css'
 
-type Resource = {
-  id: number
-  title: string
-  unit: string
-  year: string
-  semester: string
-  type: string
-  size: string
-}
 
 type Page = 'Home' | 'Browse Resources' | 'My Downloads'
 type AuthMode = 'login' | 'register'
 
-const resources: Resource[] = [
-  {
-    id: 1,
-    title: 'Introduction to Programming Notes',
-    unit: 'Computer Science',
-    year: 'Year 1',
-    semester: 'Semester 1',
-    type: 'Lecture Notes',
-    size: '2.4 MB',
-  },
-  {
-    id: 2,
-    title: 'Database Systems Revision Paper',
-    unit: 'Database Systems',
-    year: 'Year 2',
-    semester: 'Semester 1',
-    type: 'Past Paper',
-    size: '1.2 MB',
-  },
-  {
-    id: 3,
-    title: 'Software Engineering Notes',
-    unit: 'Software Engineering',
-    year: 'Year 3',
-    semester: 'Semester 2',
-    type: 'Lecture Notes',
-    size: '3.1 MB',
-  },
-  {
-    id: 4,
-    title: 'Web Development Past Paper',
-    unit: 'Web Development',
-    year: 'Year 2',
-    semester: 'Semester 2',
-    type: 'Past Paper',
-    size: '950 KB',
-  },
-  {
-    id: 5,
-    title: 'Advanced Database Notes',
-    unit: 'Database Systems',
-    year: 'Year 3',
-    semester: 'Semester 1',
-    type: 'Lecture Notes',
-    size: '2.0 MB',
-  },
-  {
-    id: 6,
-    title: 'Final Year Project Guidelines',
-    unit: 'Software Engineering',
-    year: 'Year 4',
-    semester: 'Semester 1',
-    type: 'Project Guide',
-    size: '1.5 MB',
-  },
-]
 
-const years = ['Year 1', 'Year 2', 'Year 3', 'Year 4']
-const semesters = ['Semester 1', 'Semester 2']
 const pages: Page[] = ['Home', 'Browse Resources', 'My Downloads']
 
 function App() {
@@ -82,55 +25,52 @@ function App() {
   const [authMode, setAuthMode] = useState<AuthMode>('login')
   const [authNotice, setAuthNotice] = useState('')
 
-  const [year, setYear] = useState('All Years')
-  const [semester, setSemester] = useState('All Semesters')
-  const [unit, setUnit] = useState('All Units')
+   const [semesterList, setSemesterList] = useState<Semester[]>([])
+  const [unitList, setUnitList] = useState<Unit[]>([])
+  const [files, setFiles] = useState<ApiFile[]>([])
+  const [semesterId, setSemesterId] = useState('')
+  const [unitId, setUnitId] = useState('')
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const availableUnits = [
-    ...new Set(
-      resources
-        .filter((resource) => {
-          const matchesYear =
-            year === 'All Years' || resource.year === year
-          const matchesSemester =
-            semester === 'All Semesters' ||
-            resource.semester === semester
+  useEffect(() => {
+    getSemesters()
+      .then(setSemesterList)
+      .catch(() =>
+        setError('Could not load semesters. Is the backend running?'),
+      )
+  }, [])
 
-          return matchesYear && matchesSemester
-        })
-        .map((resource) => resource.unit),
-    ),
-  ]
+  function handleSemesterChange(value: string) {
+    setSemesterId(value)
+    setUnitId('')
+    setUnitList([])
+    setFiles([])
+    setError('')
+    if (!value) return
+    getUnits(value)
+      .then(setUnitList)
+      .catch(() => setError('Could not load units.'))
+  }
 
-  const filteredResources = resources.filter((resource) => {
-    const matchesYear =
-      year === 'All Years' || resource.year === year
+  function handleUnitChange(value: string) {
+    setUnitId(value)
+    setFiles([])
+    setError('')
+    if (!value) return
+    setLoading(true)
+    getFiles(value)
+      .then(setFiles)
+      .catch(() => setError('Could not load files.'))
+      .finally(() => setLoading(false))
+  }
 
-    const matchesSemester =
-      semester === 'All Semesters' ||
-      resource.semester === semester
-
-    const matchesUnit =
-      unit === 'All Units' || resource.unit === unit
-
-    const searchTerm = search.trim().toLowerCase()
-
-    const matchesSearch = [
-      resource.title,
-      resource.unit,
-      resource.type,
-      resource.year,
-      resource.semester,
-    ].some((value) => value.toLowerCase().includes(searchTerm))
-
-    return (
-      matchesYear &&
-      matchesSemester &&
-      matchesUnit &&
-      matchesSearch
-    )
-  })
+  const searchTerm = search.trim().toLowerCase()
+  const filteredResources = files.filter((file) =>
+    file.title.toLowerCase().includes(searchTerm),
+  )
+  const selectedUnit = unitList.find((u) => u.id === unitId)
 
   function openAuth(mode: AuthMode, notice = '') {
     setAuthMode(mode)
@@ -143,15 +83,8 @@ function App() {
     setAuthNotice('')
   }
 
-  function handleYearChange(value: string) {
-    setYear(value)
-    setUnit('All Units')
-  }
 
-  function handleSemesterChange(value: string) {
-    setSemester(value)
-    setUnit('All Units')
-  }
+
 
   function handleAuthSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -402,34 +335,20 @@ function App() {
             </div>
 
             <div className="filters">
-              <div className="filter-field">
-                <label htmlFor="year">Academic Year</label>
-                <select
-                  id="year"
-                  value={year}
-                  onChange={(event) =>
-                    handleYearChange(event.target.value)
-                  }
-                >
-                  <option>All Years</option>
-                  {years.map((yearName) => (
-                    <option key={yearName}>{yearName}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-field">
+                            <div className="filter-field">
                 <label htmlFor="semester">Semester</label>
                 <select
                   id="semester"
-                  value={semester}
+                  value={semesterId}
                   onChange={(event) =>
                     handleSemesterChange(event.target.value)
                   }
                 >
-                  <option>All Semesters</option>
-                  {semesters.map((semesterName) => (
-                    <option key={semesterName}>{semesterName}</option>
+                  <option value="">Select a semester</option>
+                  {semesterList.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -438,12 +357,17 @@ function App() {
                 <label htmlFor="unit">Unit</label>
                 <select
                   id="unit"
-                  value={unit}
-                  onChange={(event) => setUnit(event.target.value)}
+                  value={unitId}
+                  disabled={!semesterId}
+                  onChange={(event) =>
+                    handleUnitChange(event.target.value)
+                  }
                 >
-                  <option>All Units</option>
-                  {availableUnits.map((unitName) => (
-                    <option key={unitName}>{unitName}</option>
+                  <option value="">Select a unit</option>
+                  {unitList.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -453,42 +377,44 @@ function App() {
                 <input
                   id="search"
                   type="search"
-                  placeholder="Search title, unit, year or type..."
+                  placeholder="Search by file title..."
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                 />
               </div>
             </div>
 
+            {error && <p role="alert">{error}</p>}
+            {loading && <p>Loading files...</p>}
             <div className="resource-list">
-              {filteredResources.map((resource) => (
-                <article className="resource-card" key={resource.id}>
+                            {filteredResources.map((file) => (
+                <article className="resource-card" key={file.id}>
                   <div className="resource-info">
                     <span className="resource-type">
-                      {resource.type}
+                      {file.fileType.toUpperCase()}
                     </span>
-                    <h3>{resource.title}</h3>
-                    <p>
-                      {resource.unit} · {resource.year} ·{' '}
-                      {resource.semester}
-                    </p>
+                    <h3>{file.title}</h3>
+                    <p>{selectedUnit?.name}</p>
                     <span className="resource-size">
-                      {resource.size}
+                      {formatSize(file.sizeBytes)}
                     </span>
                   </div>
 
-                  <button
+                  {/* Changed from the login-gated button: the API's download
+                      route needs no login yet. Restore the old button when
+                      authentication is added. */}
+                  <a
                     className="resource-action"
-                    type="button"
-                    onClick={() =>
-                      openAuth(
-                        'login',
-                        'Please log in before downloading a resource. Actual downloads will be enabled when authentication and file access are connected to the backend.',
-                      )
-                    }
+                    href={downloadUrl(file.id)}
+                    download
+                    style={{
+                      textDecoration: 'none',
+                      display: 'inline-block',
+                      textAlign: 'center',
+                    }}
                   >
-                    Log in to Download
-                  </button>
+                    Download
+                  </a>
                 </article>
               ))}
 
@@ -496,7 +422,7 @@ function App() {
                 <div className="empty-state">
                   <h3>No resources found</h3>
                   <p>
-                    Try changing the year, semester, unit or search term.
+                    Choose a semester and a unit to see files
                   </p>
                   <button
                     type="button"
