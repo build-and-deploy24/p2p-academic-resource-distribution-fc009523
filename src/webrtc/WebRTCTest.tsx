@@ -1,6 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { PeerConnectionClient } from './peerConnection'
+import './WebRTCTest.css'
 
 export default function WebRTCTest() {
   const clientRef = useRef<PeerConnectionClient | null>(null)
@@ -53,104 +54,168 @@ export default function WebRTCTest() {
       setError(err instanceof Error ? err.message : 'Message could not be sent.')
     }
   }
-  async function sendFile() {
-  if (!selectedFile) {
-    setError('Please select a file first.')
-    return
-  }
 
-  try {
-    await clientRef.current?.sendFile(selectedFile)
-    setError('')
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'File could not be sent.')
+  async function sendFile() {
+    if (!selectedFile) {
+      setError('Please select a file first.')
+      return
+    }
+
+    try {
+      await clientRef.current?.sendFile(selectedFile)
+      setError('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'File could not be sent.')
+    }
   }
-}
 
   return (
-    <section style={{ padding: '24px', border: '1px solid #ccc', margin: '24px 0' }}>
-      <h2>WebRTC Connection Test</h2>
+    <section className="webrtc-section">
+      <div className="webrtc-header">
+        <p className="webrtc-eyebrow">PEER-TO-PEER SHARING</p>
+        <h2>CampusShare Connection</h2>
+        <p className="webrtc-description">
+          Connect with another student to exchange messages and academic
+          resources directly between devices.
+        </p>
+      </div>
 
-      <label htmlFor="webrtc-room">Room ID</label>
-      <input
-        id="webrtc-room"
-        value={roomId}
-        onChange={(event) => setRoomId(event.target.value)}
-        disabled={status !== 'Disconnected'}
-      />
-
-      <p>Status: {status}</p>
-
-      <button type="button" onClick={connect} disabled={status !== 'Disconnected' || !roomId.trim()}>
-        Connect
-      </button>
-
-      <button type="button" onClick={disconnect} disabled={status === 'Disconnected'}>
-        Disconnect
-      </button>
-
-      <hr />
-
-      <label htmlFor="webrtc-message">Message</label>
-      <input
-        id="webrtc-message"
-        value={message}
-        onChange={(event) => setMessage(event.target.value)}
-        placeholder="Type a test message"
-      />
-
-      <button
-        type="button"
-        onClick={sendMessage}
-        disabled={status !== 'Data channel connected' || !message.trim()}
-      >
-        Send
-      </button>
-
-      <div>
-        <h3>File Transfer</h3>
-
-        <input
-            type="file"
-            onChange={(event) => {
-            setSelectedFile(event.target.files?.[0] ?? null)
-            }}
-        />
-
-        <button
-            onClick={sendFile}
-            //disabled={!selectedFile || status !== 'Connected'}
-            disabled={!selectedFile}
-        >
-            Send File
-        </button>
-
-        {/* {selectedFile && <p>Selected: {selectedFile.name}</p>} */}
-        <p>Selected file: {selectedFile ? selectedFile.name : 'None'}</p>
-        <p>Connection status: {status}</p>
+      <div className="webrtc-connection">
+        <div className="webrtc-panel-heading">
+          <h3>Connection</h3>
+          <span className="webrtc-status">{status}</span>
         </div>
 
-      {receivedMessage && (
-        <p>Received: {receivedMessage}</p>
-      )}
+        <div className="webrtc-field">
+          <label htmlFor="webrtc-room">Room ID</label>
+          <input
+            id="webrtc-room"
+            value={roomId}
+            onChange={(event) => setRoomId(event.target.value)}
+            disabled={status !== 'Disconnected'}
+          />
+        </div>
+
+        <div className="webrtc-actions">
+          <button
+            type="button"
+            className="webrtc-button"
+            onClick={connect}
+            disabled={status !== 'Disconnected' || !roomId.trim()}
+          >
+            Connect
+          </button>
+
+          <button
+            type="button"
+            className="webrtc-button webrtc-button-secondary"
+            onClick={disconnect}
+            disabled={status === 'Disconnected'}
+          >
+            Disconnect
+          </button>
+        </div>
+      </div>
+
+      <div className="webrtc-grid">
+        <div className="webrtc-panel">
+          <h3>Messages</h3>
+          <p className="webrtc-panel-description">
+            Send a message to the connected peer.
+          </p>
+
+          <div className="webrtc-field">
+            <label htmlFor="webrtc-message">Your message</label>
+            <div className="webrtc-message-row">
+              <input
+                id="webrtc-message"
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                placeholder="Type a message..."
+              />
+
+              <button
+                type="button"
+                className="webrtc-button"
+                onClick={sendMessage}
+                disabled={
+                  status !== 'Data channel connected' || !message.trim()
+                }
+              >
+                Send
+              </button>
+            </div>
+          </div>
+
+          {receivedMessage && (
+            <div className="webrtc-feedback">
+              <strong>Received message:</strong>
+              <p>{receivedMessage}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="webrtc-panel">
+          <h3>File Sharing</h3>
+          <p className="webrtc-panel-description">
+            Select an academic resource to send to your connected peer.
+          </p>
+
+          <div className="webrtc-field">
+            <label htmlFor="webrtc-file">Choose a file</label>
+            <input
+              id="webrtc-file"
+              className="webrtc-file-input"
+              type="file"
+              onChange={(event) => {
+                setSelectedFile(event.target.files?.[0] ?? null)
+              }}
+            />
+          </div>
+
+          <div className="webrtc-selected-file">
+            <strong>Selected file:</strong>{' '}
+            {selectedFile ? selectedFile.name : 'No file selected'}
+          </div>
+
+          <div className="webrtc-actions" style={{ marginTop: '16px' }}>
+            <button
+              type="button"
+              className="webrtc-button"
+              onClick={sendFile}
+              disabled={!selectedFile}
+            >
+              Send File
+            </button>
+          </div>
+        </div>
+      </div>
 
       {error && (
-        <p role="alert" style={{ color: 'red' }}>{error}</p>
+        <div className="webrtc-feedback webrtc-error" role="alert">
+          <strong>Error:</strong> {error}
+        </div>
       )}
-    {receivedFile && (
-  <div>
-    <h3>File received</h3>
-    <p>{receivedFile.name}</p>
-    <p>{(receivedFile.size / 1024).toFixed(2)} KB</p>
-    <a
-      href={URL.createObjectURL(receivedFile)}
-      download={receivedFile.name}
-    >
-      Download received file
-    </a>
-  </div>
-)}
 
+      {receivedFile && (
+        <div className="webrtc-received">
+          <h3>File Received Successfully</h3>
+          <p>
+            <strong>File name:</strong> {receivedFile.name}
+          </p>
+          <p>
+            <strong>File size:</strong>{' '}
+            {(receivedFile.size / 1024).toFixed(2)} KB
+          </p>
+          <a
+            className="webrtc-download"
+            href={URL.createObjectURL(receivedFile)}
+            download={receivedFile.name}
+          >
+            Download received file
+          </a>
+        </div>
+      )}
     </section>
   )
 }
