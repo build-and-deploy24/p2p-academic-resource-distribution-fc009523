@@ -4,10 +4,12 @@
   "description": "API for the P2P academic resource distribution system",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "tsx --test test/*.test.ts"
-  },
+  "dev": "tsx watch src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "typecheck": "tsc --noEmit",
+  "test": "tsx --test test/*.test.ts"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

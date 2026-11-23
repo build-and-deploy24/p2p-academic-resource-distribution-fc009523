@@ -6,7 +6,7 @@ const start = async (): Promise<void> => {
   try {
     await app.listen({
       port: Number(process.env.PORT ?? 3000),
-      host: process.env.HOST ?? '127.0.0.1',
+      host: process.env.HOST ?? '0.0.0.0',
     });
   } catch (error) {
     app.log.error(error);
