@@ -1,0 +1,298 @@
+
+/* Main WebRTC section */
+.webrtc-section {
+  width: min(1100px, 90%);
+  margin: 40px auto;
+  padding: 30px;
+  border: 1px solid #dce8f1;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 25px rgba(16, 43, 70, 0.06);
+  text-align: left;
+}
+
+.webrtc-header {
+  margin-bottom: 25px;
+}
+
+.webrtc-eyebrow {
+  margin-bottom: 8px;
+  color: #386a8c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.webrtc-header h2 {
+  margin: 0 0 8px;
+  color: #102b46;
+  font-size: 26px;
+}
+
+.webrtc-description {
+  color: #65798b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Connection panel */
+.webrtc-connection {
+  padding: 24px;
+  margin-bottom: 22px;
+  border-radius: 12px;
+  background: #102b46;
+  color: white;
+}
+
+.webrtc-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.webrtc-panel-heading h3 {
+  margin: 0;
+  color: inherit;
+  font-size: 18px;
+}
+
+.webrtc-status {
+  padding: 7px 12px;
+  border: 1px solid #53758f;
+  border-radius: 20px;
+  color: #d9effc;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* Form fields */
+.webrtc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.webrtc-field label {
+  color: #29465e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.webrtc-connection .webrtc-field label {
+  color: #d9effc;
+}
+
+.webrtc-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 45px;
+  padding: 12px;
+  border: 1px solid #ccdce8;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #24364b;
+  font: inherit;
+}
+
+.webrtc-field input:focus {
+  outline: 3px solid #d9effc;
+  border-color: #69b9e8;
+}
+
+/* Buttons */
+.webrtc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.webrtc-button {
+  min-height: 42px;
+  padding: 10px 18px;
+  border: 1px solid #72bde8;
+  border-radius: 7px;
+  background: #d9effc;
+  color: #123a58;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.webrtc-button:hover:not(:disabled) {
+  background: #b9e2f8;
+  transform: translateY(-1px);
+}
+
+.webrtc-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.webrtc-button-secondary {
+  border-color: #53758f;
+  background: #244762;
+  color: #ffffff;
+}
+
+.webrtc-button-secondary:hover:not(:disabled) {
+  background: #315b78;
+}
+
+/* Messages and file transfer panels */
+.webrtc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.webrtc-panel {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #e0eaf2;
+  border-radius: 12px;
+  background: #f8fbfe;
+}
+
+.webrtc-panel h3 {
+  margin: 0 0 8px;
+  color: #173c5b;
+  font-size: 17px;
+}
+
+.webrtc-panel-description {
+  margin-bottom: 18px;
+  color: #65798b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.webrtc-message-row {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+
+.webrtc-message-row input {
+  flex: 1;
+  min-width: 0;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #ccdce8;
+  border-radius: 7px;
+  background: white;
+  color: #24364b;
+  font: inherit;
+}
+
+.webrtc-file-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px dashed #9fcce5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #526b80;
+  font-size: 13px;
+}
+
+.webrtc-selected-file {
+  margin-top: 12px;
+  padding: 11px;
+  border-radius: 7px;
+  background: #eaf4fb;
+  color: #29465e;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* Feedback and received content */
+.webrtc-feedback {
+  margin-top: 18px;
+  padding: 13px 15px;
+  border-radius: 8px;
+  background: #eaf4fb;
+  color: #173c5b;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.webrtc-error {
+  border: 1px solid #f0c5c5;
+  background: #fff1f1;
+  color: #a12c2c;
+}
+
+.webrtc-received {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #cce7d9;
+  border-radius: 10px;
+  background: #f1faf5;
+  color: #24563d;
+  overflow-wrap: anywhere;
+}
+
+.webrtc-received h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.webrtc-received p {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.webrtc-download {
+  display: inline-block;
+  margin-top: 8px;
+  color: #176b9c;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.webrtc-download:hover {
+  text-decoration: underline;
+}
+
+/* Smaller screens */
+@media (max-width: 700px) {
+  .webrtc-section {
+    width: 92%;
+    padding: 20px;
+    margin: 28px auto;
+  }
+
+  .webrtc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .webrtc-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 450px) {
+  .webrtc-section {
+    padding: 16px;
+  }
+
+  .webrtc-connection,
+  .webrtc-panel {
+    padding: 17px;
+  }
+
+  .webrtc-message-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .webrtc-message-row .webrtc-button {
+    width: 100%;
+  }
+}
