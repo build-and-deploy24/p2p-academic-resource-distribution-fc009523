@@ -1,4 +1,5 @@
-import { randomUUID } from 'node:crypto';
+import type { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { isNumericId, pool } from '../db.js';
 
 export interface FileMetadata {
   id: string;
@@ -25,55 +26,67 @@ export interface FileRepository {
   create(input: NewFileMetadata): Promise<FileMetadata>;
 }
 
-// Temporary in-memory data used until PostgreSQL and Prisma are wired up.
-// The final file metadata fields are still an open decision in
-// docs/api-contract.md. Each storageKey matches a placeholder file under
-// backend/storage/ so the download endpoint can be exercised end to end.
-const seedFiles: FileMetadata[] = [
-  {
-    id: 'file-1',
-    title: 'Lecture 1 - Introduction',
-    fileType: 'pdf',
-    sizeBytes: 360, // real size of the placeholder file in backend/storage/
-    unitId: 'unit-1',
-    storageKey: 'lecture-1-introduction.pdf',
-  },
-  {
-    id: 'file-2',
-    title: 'Lecture 2 - Variables and Types',
-    fileType: 'pdf',
-    sizeBytes: 367,
-    unitId: 'unit-1',
-    storageKey: 'lecture-2-variables-and-types.pdf',
-  },
-  {
-    id: 'file-3',
-    title: 'Discrete Mathematics Notes',
-    fileType: 'pdf',
-    sizeBytes: 362,
-    unitId: 'unit-2',
-    storageKey: 'discrete-mathematics-notes.pdf',
-  },
-  {
-    id: 'file-4',
-    title: 'Data Structures Lecture Slides',
-    fileType: 'pdf',
-    sizeBytes: 366,
-    unitId: 'unit-3',
-    storageKey: 'data-structures-lecture-slides.pdf',
-  },
-];
+interface FileRow extends RowDataPacket {
+  id: number;
+  filename: string;
+  file_type: string;
+  file_size: number;
+  unit_id: number;
+  storage_key: string;
+}
+
+const COLUMNS =
+  'id, filename, file_type, file_size, unit_id, storage_key';
+
+function toFile(row: FileRow): FileMetadata {
+  return {
+    id: String(row.id),
+    title: row.filename,
+    fileType: row.file_type.toLowerCase(),
+    sizeBytes: Number(row.file_size),
+    unitId: String(row.unit_id),
+    storageKey: row.storage_key,
+  };
+}
 
 export const fileRepository: FileRepository = {
   async listByUnitId(unitId: string): Promise<FileMetadata[]> {
-    return seedFiles.filter((file) => file.unitId === unitId);
+    if (!isNumericId(unitId)) return [];
+    const [rows] = await pool.query<FileRow[]>(
+      `SELECT ${COLUMNS} FROM files WHERE unit_id = ? ORDER BY id`,
+      [unitId],
+    );
+    return rows.map(toFile);
   },
   async findById(id: string): Promise<FileMetadata | null> {
-    return seedFiles.find((file) => file.id === id) ?? null;
+    if (!isNumericId(id)) return null;
+    const [rows] = await pool.query<FileRow[]>(
+      `SELECT ${COLUMNS} FROM files WHERE id = ?`,
+      [id],
+    );
+    return rows[0] ? toFile(rows[0]) : null;
   },
   async create(input: NewFileMetadata): Promise<FileMetadata> {
-    const file: FileMetadata = { id: randomUUID(), ...input };
-    seedFiles.push(file);
-    return file;
+    // uploaded_by is required by the schema, and the backend has no login
+    // yet, so uploads are recorded against the first ADMIN user.
+    const [result] = await pool.query<ResultSetHeader>(
+      `INSERT INTO files
+         (unit_id, uploaded_by, filename, storage_key, file_size, file_type)
+       SELECT ?, id, ?, ?, ?, ? FROM users WHERE role = 'ADMIN'
+       ORDER BY id LIMIT 1`,
+      [
+        input.unitId,
+        input.title,
+        input.storageKey,
+        input.sizeBytes,
+        input.fileType.toUpperCase(),
+      ],
+    );
+    if (result.insertId === 0) {
+      throw new Error('No ADMIN user exists to record as the uploader.');
+    }
+    const created = await fileRepository.findById(String(result.insertId));
+    if (!created) throw new Error('Inserted file could not be read back.');
+    return created;
   },
 };
