@@ -91,3 +91,26 @@ export function clearSession(): void {
     // Nothing to clear.
   }
 }
+export async function downloadFile(
+  fileId: string,
+  token: string,
+  fileName: string,
+): Promise<void> {
+  const res = await fetch(downloadUrl(fileId), {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (res.status === 401) {
+    throw new Error('Please log in again to download files.')
+  }
+  if (!res.ok) throw new Error(`Download failed (${res.status})`)
+
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}

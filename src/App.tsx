@@ -17,6 +17,7 @@ import {
   loadSession,
   clearSession,
   type AuthResult,
+    downloadFile,
 } from './api'
 import './App.css'
 
@@ -34,6 +35,7 @@ function App() {
   const [authNotice, setAuthNotice] = useState('')
     const [session, setSession] = useState<AuthResult | null>(() => loadSession())
   const [submitting, setSubmitting] = useState(false)
+    const [downloadError, setDownloadError] = useState('')
 
    const [semesterList, setSemesterList] = useState<Semester[]>([])
   const [unitList, setUnitList] = useState<Unit[]>([])
@@ -137,7 +139,26 @@ function App() {
     clearSession()
     setSession(null)
   }
-
+  async function handleDownload(file: ApiFile) {
+    setDownloadError('')
+    if (!session) {
+      openAuth('login', 'Please log in to download files.')
+      return
+    }
+    try {
+      await downloadFile(
+        file.id,
+        session.token,
+        `${file.title}.${file.fileType}`,
+      )
+    } catch (err) {
+      setDownloadError(
+        err instanceof Error
+          ? err.message
+          : 'Download failed. Please try again.',
+      )
+    }
+  }
     
 
   return (
@@ -434,6 +455,7 @@ function App() {
             {error && <p role="alert">{error}</p>}
             {loading && <p>Loading files...</p>}
             <div className="resource-list">
+                          {downloadError && <p role="alert">{downloadError}</p>}
                             {filteredResources.map((file) => (
                 <article className="resource-card" key={file.id}>
                   <div className="resource-info">
@@ -447,21 +469,13 @@ function App() {
                     </span>
                   </div>
 
-                  {/* Changed from the login-gated button: the API's download
-                      route needs no login yet. Restore the old button when
-                      authentication is added. */}
-                  <a
+                                   <button
                     className="resource-action"
-                    href={downloadUrl(file.id)}
-                    download
-                    style={{
-                      textDecoration: 'none',
-                      display: 'inline-block',
-                      textAlign: 'center',
-                    }}
+                    type="button"
+                    onClick={() => handleDownload(file)}
                   >
-                    Download
-                  </a>
+                    {session ? 'Download' : 'Log in to Download'}
+                  </button>
                 </article>
               ))}
 
