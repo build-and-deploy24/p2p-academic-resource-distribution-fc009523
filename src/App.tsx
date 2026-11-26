@@ -11,6 +11,12 @@ import {
   type Semester,
   type Unit,
   type ApiFile,
+    registerUser,
+  loginUser,
+  saveSession,
+  loadSession,
+  clearSession,
+  type AuthResult,
 } from './api'
 import './App.css'
 
@@ -26,6 +32,8 @@ function App() {
   const [view, setView] = useState<'browse' | 'auth'>('browse')
   const [authMode, setAuthMode] = useState<AuthMode>('login')
   const [authNotice, setAuthNotice] = useState('')
+    const [session, setSession] = useState<AuthResult | null>(() => loadSession())
+  const [submitting, setSubmitting] = useState(false)
 
    const [semesterList, setSemesterList] = useState<Semester[]>([])
   const [unitList, setUnitList] = useState<Unit[]>([])
@@ -88,25 +96,49 @@ function App() {
 
 
 
-  function handleAuthSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleAuthSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const form = event.currentTarget
     const formData = new FormData(form)
+    const fullName = String(formData.get('fullName') ?? '').trim()
+    const email = String(formData.get('email') ?? '').trim()
     const password = String(formData.get('password') ?? '')
-    const confirmPassword = String(
-      formData.get('confirmPassword') ?? '',
-    )
+    const confirmPassword = String(formData.get('confirmPassword') ?? '')
 
     if (authMode === 'register' && password !== confirmPassword) {
       setAuthNotice('Your passwords do not match. Please try again.')
       return
     }
 
-    setAuthNotice(
-      'Your form is valid, but account creation and login are not active yet. We will connect this form to the backend authentication API when it is ready.',
-    )
+    setSubmitting(true)
+    setAuthNotice('')
+    try {
+      const result =
+        authMode === 'register'
+          ? await registerUser(fullName, email, password)
+          : await loginUser(email, password)
+      saveSession(result)
+      setSession(result)
+      form.reset()
+      returnToBrowse()
+    } catch (err) {
+      setAuthNotice(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again.',
+      )
+    } finally {
+      setSubmitting(false)
+    }
   }
+
+  function handleLogout() {
+    clearSession()
+    setSession(null)
+  }
+
+    
 
   return (
     <div className="app">
@@ -153,13 +185,26 @@ function App() {
           </button>
         ))}
 
-        <button
-          type="button"
-          className="nav-login"
-          onClick={() => openAuth('login')}
-        >
-          Login / Register
-        </button>
+              {session ? (
+          <>
+            <span className="nav-user">Hi, {session.user.name}</span>
+            <button
+              type="button"
+              className="nav-login"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            className="nav-login"
+            onClick={() => openAuth('login')}
+          >
+            Login / Register
+          </button>
+        )}
       </nav>
 
       {view === 'auth' ? (
@@ -275,7 +320,7 @@ function App() {
                 </p>
               )}
 
-              <button className="auth-submit" type="submit">
+                            <button className="auth-submit" type="submit" disabled={submitting}>
                 {authMode === 'login' ? 'Log In' : 'Create Account'}
               </button>
             </form>

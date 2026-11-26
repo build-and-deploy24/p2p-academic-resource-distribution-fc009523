@@ -32,3 +32,62 @@ export function formatSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
+
+export type AuthUser = {
+  id: string
+  name: string
+  email: string
+  role: 'STUDENT' | 'ADMIN'
+}
+export type AuthResult = { user: AuthUser; token: string }
+
+type ApiErrorBody = { success: false; error: { code: string; message: string } }
+
+async function postJson<T>(url: string, body: unknown): Promise<T> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  const json = await res.json().catch(() => null)
+  if (!res.ok) {
+    const message =
+      (json as ApiErrorBody | null)?.error?.message ??
+      `Request failed (${res.status})`
+    throw new Error(message)
+  }
+  return (json as ApiSuccess<T>).data
+}
+
+export const registerUser = (name: string, email: string, password: string) =>
+  postJson<AuthResult>('/api/auth/register', { name, email, password })
+
+export const loginUser = (email: string, password: string) =>
+  postJson<AuthResult>('/api/auth/login', { email, password })
+
+const SESSION_KEY = 'campusshare-session'
+
+export function saveSession(result: AuthResult): void {
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(result))
+  } catch {
+    // Storage can be unavailable; the user simply has to log in again.
+  }
+}
+
+export function loadSession(): AuthResult | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY)
+    return raw ? (JSON.parse(raw) as AuthResult) : null
+  } catch {
+    return null
+  }
+}
+
+export function clearSession(): void {
+  try {
+    localStorage.removeItem(SESSION_KEY)
+  } catch {
+    // Nothing to clear.
+  }
+}
