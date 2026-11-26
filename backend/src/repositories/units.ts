@@ -1,3 +1,6 @@
+import type { RowDataPacket } from 'mysql2';
+import { isNumericId, pool } from '../db.js';
+
 export interface Unit {
   id: string;
   name: string;
@@ -9,21 +12,35 @@ export interface UnitRepository {
   findById(id: string): Promise<Unit | null>;
 }
 
-// Temporary in-memory data used until PostgreSQL and Prisma are wired up.
-// The ids and names are placeholders: the final unit metadata is still an
-// open decision in docs/api-contract.md.
-const seedUnits: Unit[] = [
-  { id: 'unit-1', name: 'Introduction to Programming', semesterId: 'semester-1' },
-  { id: 'unit-2', name: 'Discrete Mathematics', semesterId: 'semester-1' },
-  { id: 'unit-3', name: 'Data Structures and Algorithms', semesterId: 'semester-2' },
-  { id: 'unit-4', name: 'Database Systems', semesterId: 'semester-2' },
-];
+interface UnitRow extends RowDataPacket {
+  id: number;
+  name: string;
+  semester_id: number;
+}
+
+function toUnit(row: UnitRow): Unit {
+  return {
+    id: String(row.id),
+    name: row.name,
+    semesterId: String(row.semester_id),
+  };
+}
 
 export const unitRepository: UnitRepository = {
   async listBySemesterId(semesterId: string): Promise<Unit[]> {
-    return seedUnits.filter((unit) => unit.semesterId === semesterId);
+    if (!isNumericId(semesterId)) return [];
+    const [rows] = await pool.query<UnitRow[]>(
+      'SELECT id, name, semester_id FROM units WHERE semester_id = ? ORDER BY code',
+      [semesterId],
+    );
+    return rows.map(toUnit);
   },
   async findById(id: string): Promise<Unit | null> {
-    return seedUnits.find((unit) => unit.id === id) ?? null;
+    if (!isNumericId(id)) return null;
+    const [rows] = await pool.query<UnitRow[]>(
+      'SELECT id, name, semester_id FROM units WHERE id = ?',
+      [id],
+    );
+    return rows[0] ? toUnit(rows[0]) : null;
   },
 };
