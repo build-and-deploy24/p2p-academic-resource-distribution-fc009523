@@ -9,6 +9,7 @@ export const pool = mysql.createPool({
   database: process.env.DB_NAME ?? 'p2p_revision_db',
   waitForConnections: true,
   connectionLimit: 10,
+  ssl: process.env.DB_SSL === 'true' ? { minVersion: 'TLSv1.2' } : undefined,
 });
 
 /** Database ids are numbers; reject anything else like "1abc" or "unit-1". */
