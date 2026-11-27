@@ -1,3 +1,6 @@
+import type { RowDataPacket } from 'mysql2';
+import { isNumericId, pool } from '../db.js';
+
 export interface Semester {
   id: string;
   name: string;
@@ -8,19 +11,28 @@ export interface SemesterRepository {
   findById(id: string): Promise<Semester | null>;
 }
 
-// Temporary in-memory data used until PostgreSQL and Prisma are wired up.
-// The ids and names are placeholders: the final semester naming scheme is
-// still an open decision in docs/api-contract.md.
-const seedSemesters: Semester[] = [
-  { id: 'semester-1', name: 'Year 1 Semester 1' },
-  { id: 'semester-2', name: 'Year 1 Semester 2' },
-];
+interface SemesterRow extends RowDataPacket {
+  id: number;
+  name: string;
+}
+
+function toSemester(row: SemesterRow): Semester {
+  return { id: String(row.id), name: row.name };
+}
 
 export const semesterRepository: SemesterRepository = {
   async list(): Promise<Semester[]> {
-    return seedSemesters;
+    const [rows] = await pool.query<SemesterRow[]>(
+      'SELECT id, name FROM semesters ORDER BY id',
+    );
+    return rows.map(toSemester);
   },
   async findById(id: string): Promise<Semester | null> {
-    return seedSemesters.find((semester) => semester.id === id) ?? null;
+    if (!isNumericId(id)) return null;
+    const [rows] = await pool.query<SemesterRow[]>(
+      'SELECT id, name FROM semesters WHERE id = ?',
+      [id],
+    );
+    return rows[0] ? toSemester(rows[0]) : null;
   },
 };

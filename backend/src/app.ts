@@ -7,6 +7,7 @@ import { uploadRoutes } from './routes/uploads.js';
 import { createApiError } from './utils/api-error.js';
 import websocket from '@fastify/websocket';
 import { signalingRoutes } from './routes/signaling.js';
+import { authRoutes } from './routes/auth.js';
 
 export interface BuildAppOptions {
   /** Disable request logging in tests; enabled by default. */
@@ -37,6 +38,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   void app.register(unitRoutes);
   void app.register(fileRoutes);
   void app.register(uploadRoutes);
+    void app.register(authRoutes);
 
   // Return the standard error shape for unknown routes.
   app.setNotFoundHandler((request, reply) => {

@@ -5,10 +5,12 @@ import {
   contentTypeForStorageKey,
   readStoredFile,
 } from '../utils/file-storage.js';
+import { requireAuth } from '../utils/require-auth.js';
 
 export async function fileRoutes(app: FastifyInstance): Promise<void> {
   app.get<{ Params: { fileId: string } }>(
     '/api/files/:fileId/download',
+    { preHandler: requireAuth },
     async (request, reply) => {
       const { fileId } = request.params;
 
