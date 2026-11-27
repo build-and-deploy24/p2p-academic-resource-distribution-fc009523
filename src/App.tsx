@@ -6,7 +6,6 @@ import {
   getSemesters,
   getUnits,
   getFiles,
-  downloadUrl,
   formatSize,
   type Semester,
   type Unit,

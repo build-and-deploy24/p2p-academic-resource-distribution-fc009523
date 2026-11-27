@@ -26,7 +26,7 @@ export class PeerConnectionClient {
     return new Promise((resolve, reject) => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const socket = new WebSocket(
-        `${protocol}//${window.location.host}/ws/signaling`,
+                `${import.meta.env.VITE_WS_URL ?? `${protocol}//${window.location.host}`}/ws/signaling`,
       )
 
       this.socket = socket
